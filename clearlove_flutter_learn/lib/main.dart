@@ -1,7 +1,8 @@
+import 'package:clearlove_flutter_learn/basic_widget/scaffold_widget.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MyScaffoldWidgetApp());
 }
 
 class MyApp extends StatelessWidget {
