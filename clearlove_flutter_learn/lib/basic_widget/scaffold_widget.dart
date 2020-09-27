@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/clearlove_util.dart';
 
 class MyScaffoldWidgetApp extends StatelessWidget {
   @override
@@ -14,14 +15,8 @@ class MyScaffoldWidgetApp extends StatelessWidget {
         appBar: AppBar(
           // 不添加这一行，title会偏左
           centerTitle: true,
-          title: Text(
-            "Scaffold Widget",
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
+          title:
+              clearlove_text("Scaffold Widget", color: Colors.yellow, size: 24),
           leading: IconButton(
             icon: Icon(
               Icons.settings,
