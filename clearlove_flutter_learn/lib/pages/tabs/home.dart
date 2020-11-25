@@ -3,11 +3,15 @@
  * @Autor: clearlove
  * @Date: 2020-11-24 11:39:01
  * @LastEditors: clearlove
- * @LastEditTime: 2020-11-24 17:09:46
+ * @LastEditTime: 2020-11-25 18:31:15
  */
 
+import 'package:clearlove_flutter_learn/config/config.dart';
+import 'package:clearlove_flutter_learn/model/focus_model.dart';
+import 'package:clearlove_flutter_learn/model/product_model.dart';
 import 'package:clearlove_flutter_learn/services/screen_adaper.dart';
 import 'package:clearlove_flutter_learn/utils/clearlove_util.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,30 +22,86 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List _focusData = [];
+  List _hotProductList = [];
+  List _bestProductList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getFocusData();
+    _getHotProductData();
+    _getBestProductData();
+  }
+
+// 获取轮播图数据
+  _getFocusData() async {
+    var api = "${Config.domain}api/focus";
+    print(api);
+    var result = await Dio().get(api);
+    print("----------- result = $result");
+    var focusList = FocusModel.fromJson(result.data);
+    print("----------- focusList = $focusList");
+
+    focusList.result.forEach((element) {
+      print(element.title);
+      print(element.pic);
+    });
+    setState(() {
+      _focusData = focusList.result;
+    });
+  }
+
+  // 获取猜你喜欢的数据
+  _getHotProductData() async {
+    var api = "${Config.domain}api/plist?is_hot=1";
+    var result = await Dio().get(api);
+    var hotProductList = ProductModel.fromJson(result.data);
+    setState(() {
+      _hotProductList = hotProductList.result;
+    });
+  }
+
+  // 获取热门推荐数据
+  _getBestProductData() async {
+    var api = "${Config.domain}api/plist?is_best=1";
+    var result = await Dio().get(api);
+    var bestProductList = ProductModel.fromJson(result.data);
+    setState(() {
+      _bestProductList = bestProductList.result;
+    });
+  }
+
   // 轮播图
   Widget _swiperWidget() {
-    List<Map> imageList = [
-      {"url": "https://www.itying.com/images/flutter/slide01.jpg"},
-      {"url": "https://www.itying.com/images/flutter/slide02.jpg"},
-      {"url": "https://www.itying.com/images/flutter/slide03.jpg"},
-    ];
-    return Container(
-      child: AspectRatio(
-        aspectRatio: 2 / 1,
-        child: Swiper(
-          itemBuilder: (context, index) {
-            return Image.network(
-              imageList[index]["url"],
-              fit: BoxFit.fill,
-            );
-          },
-          itemCount: imageList.length,
-          pagination: SwiperPagination(),
-          control: SwiperControl(),
-          autoplay: true,
+    // List<Map> imageList = [
+    //   {"url": "https://www.itying.com/images/flutter/slide01.jpg"},
+    //   {"url": "https://www.itying.com/images/flutter/slide02.jpg"},
+    //   {"url": "https://www.itying.com/images/flutter/slide03.jpg"},
+    // ];
+    if (_focusData.length > 0) {
+      return Container(
+        child: AspectRatio(
+          aspectRatio: 2 / 1,
+          child: Swiper(
+            itemBuilder: (context, index) {
+              String pic = _focusData[index].pic;
+              pic = Config.domain + pic.replaceAll("\\", "/");
+              return Image.network(
+                pic,
+                fit: BoxFit.fill,
+              );
+            },
+            itemCount: _focusData.length,
+            pagination: SwiperPagination(),
+            control: SwiperControl(),
+            autoplay: true,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Text("加载中...");
+    }
   }
 
   // 分组标题
@@ -67,83 +127,104 @@ class _HomePageState extends State<HomePage> {
 
   // 热门商品
   Widget _hotProductListWidget() {
-    return Container(
-      height: ScreenAdaper.height(240),
-      padding: EdgeInsets.all(ScreenAdaper.width(10)),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 9,
-        itemBuilder: (BuildContext context, int index) {
-          return Column(
-            children: [
-              Container(
-                height: ScreenAdaper.height(140),
-                width: ScreenAdaper.width(140),
-                margin: EdgeInsets.only(right: ScreenAdaper.width(21)),
-                child: Image.network(
-                  "https://www.itying.com/images/flutter/hot${index + 1}.jpg",
-                  fit: BoxFit.cover,
+    if (_hotProductList.length > 0) {
+      return Container(
+        height: ScreenAdaper.height(240),
+        padding: EdgeInsets.all(ScreenAdaper.width(10)),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: _hotProductList.length,
+          itemBuilder: (BuildContext context, int index) {
+            String sPic = _hotProductList[index].pic;
+            sPic = Config.domain + sPic.replaceAll("\\", "/");
+            return Column(
+              children: [
+                Container(
+                  height: ScreenAdaper.height(140),
+                  width: ScreenAdaper.width(140),
+                  margin: EdgeInsets.only(right: ScreenAdaper.width(21)),
+                  child: Image.network(
+                    sPic,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
-                height: ScreenAdaper.height(44),
-                child: Text("第${index}条"),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+                Container(
+                  padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
+                  height: ScreenAdaper.height(44),
+                  child: Text(
+                    "￥${_hotProductList[index].price}",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    } else {
+      return Text("暂无热门推荐数据");
+    }
   }
 
   Widget _recProductItemListWidget() {
     var itemWidth = (ScreenAdaper.getScreenWidth() - 30) / 2;
     return Container(
-      padding: EdgeInsets.all(ScreenAdaper.width(20)),
-      width: itemWidth,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 1),
-      ),
-      child: Column(
-        children: [
-          Container(
-            child: AspectRatio(
-              aspectRatio: 1 / 1,
-              child: Image.network(
-                "https://www.itying.com/images/flutter/list1.jpg",
-                fit: BoxFit.cover,
-              ),
+      padding: EdgeInsets.all(10),
+      child: Wrap(
+        runSpacing: 10,
+        spacing: 10,
+        children: _bestProductList.map((element) {
+          String sPic = element.pic;
+          sPic = Config.domain + sPic.replaceAll("\\", "/");
+          return Container(
+            padding: EdgeInsets.all(ScreenAdaper.width(20)),
+            width: itemWidth,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 1),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
-            child: Text(
-              "2019秋季大促2019秋季大促2019秋季大促2019秋季大促2019秋季大促2019秋季大促",
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black54),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: ScreenAdaper.height(20)),
-            child: Stack(
+            child: Column(
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: clearlove_text("￥123.0", color: Colors.red, size: 16),
+                Container(
+                  child: AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: Image.network(
+                      sPic,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: clearlove_text("￥189.0",
-                      color: Colors.black54,
-                      size: 16,
-                      decoration: TextDecoration.lineThrough),
+                Padding(
+                  padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
+                  child: Text(
+                    "${element.title}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.black54),
+                  ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(top: ScreenAdaper.height(20)),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: clearlove_text("￥${element.price}",
+                            color: Colors.red, size: 16),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: clearlove_text("￥${element.oldPrice}",
+                            color: Colors.black54,
+                            size: 16,
+                            decoration: TextDecoration.lineThrough),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
-          )
-        ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -164,21 +245,7 @@ class _HomePageState extends State<HomePage> {
           height: 10,
         ),
         _titleWidget("热门推荐"),
-        Container(
-          padding: EdgeInsets.all(10),
-          child: Wrap(
-            runSpacing: 10,
-            spacing: 10,
-            children: [
-              _recProductItemListWidget(),
-              _recProductItemListWidget(),
-              _recProductItemListWidget(),
-              _recProductItemListWidget(),
-              _recProductItemListWidget(),
-              _recProductItemListWidget(),
-            ],
-          ),
-        ),
+        _recProductItemListWidget(),
       ],
     );
   }
