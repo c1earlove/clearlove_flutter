@@ -3,7 +3,7 @@
  * @Autor: clearlove
  * @Date: 2020-11-24 11:39:01
  * @LastEditors: clearlove
- * @LastEditTime: 2020-11-25 18:31:15
+ * @LastEditTime: 2020-11-26 14:35:15
  */
 
 import 'package:clearlove_flutter_learn/config/config.dart';
@@ -21,10 +21,15 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   List _focusData = [];
   List _hotProductList = [];
   List _bestProductList = [];
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -41,7 +46,7 @@ class _HomePageState extends State<HomePage> {
     var result = await Dio().get(api);
     print("----------- result = $result");
     var focusList = FocusModel.fromJson(result.data);
-    print("----------- focusList = $focusList");
+    print("----------- focusList = ${focusList.result}");
 
     focusList.result.forEach((element) {
       print(element.title);

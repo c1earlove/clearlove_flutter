@@ -3,9 +3,10 @@
  * @Autor: clearlove
  * @Date: 2020-11-24 14:16:16
  * @LastEditors: clearlove
- * @LastEditTime: 2020-11-24 14:46:23
+ * @LastEditTime: 2020-11-26 16:31:28
  */
 
+import 'package:clearlove_flutter_learn/pages/product_list.dart';
 import 'package:clearlove_flutter_learn/pages/search.dart';
 import 'package:clearlove_flutter_learn/pages/tabs/tabs.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,9 @@ import 'package:flutter/material.dart';
 final routes = {
   '/': (context) => Tabs(),
   '/search': (context) => SearchPage(),
+  "/productList": (context, {arguments}) => ProductListPage(
+        arguments: arguments,
+      ),
 };
 
 // 固定写法

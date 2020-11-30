@@ -3,7 +3,7 @@
  * @Autor: clearlove
  * @Date: 2020-11-24 15:41:58
  * @LastEditors: clearlove
- * @LastEditTime: 2020-11-24 16:01:21
+ * @LastEditTime: 2020-11-30 16:02:48
  */
 
 import 'package:flutter/material.dart';
@@ -28,5 +28,10 @@ class ScreenAdaper {
 
   static getScreenWidth() {
     return ScreenUtil().screenWidth;
+  }
+
+  // 适配字体
+  static fontSize(double fontSize) {
+    return ScreenUtil().setSp(fontSize);
   }
 }
