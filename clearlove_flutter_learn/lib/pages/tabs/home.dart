@@ -10,6 +10,7 @@ import 'package:clearlove_flutter_learn/config/config.dart';
 import 'package:clearlove_flutter_learn/model/focus_model.dart';
 import 'package:clearlove_flutter_learn/model/product_model.dart';
 import 'package:clearlove_flutter_learn/services/screen_adaper.dart';
+import 'package:clearlove_flutter_learn/services/search_service.dart';
 import 'package:clearlove_flutter_learn/utils/clearlove_util.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,8 @@ class _HomePageState extends State<HomePage>
     _getFocusData();
     _getHotProductData();
     _getBestProductData();
+
+    SearchService.setHistoryData("aaa");
   }
 
 // 获取轮播图数据

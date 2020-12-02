@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 Text clearlove_text(
   String text, {
   double size = 14.0,
-  Color color = Colors.red,
+  Color color,
   TextDecoration decoration,
   TextAlign textAlign = TextAlign.center,
 }) {

@@ -38,19 +38,66 @@ class _ProductListPageState extends State<ProductListPage> {
   bool flag = true;
   // 是否有数据
   bool _hasMore = true;
+  // 是否有搜索数据
+  bool _hasSearchData = true;
+  // 一级导航数据
+  /* 
+  价格升序 sort=price_1
+  价格降序 sort=price_-1
+  销量升序 sort=salecount_1
+  销量降序 sort=salecount_-1
+   */
+
+  List _subHeaderList = [
+    {"id": 1, "title": "综合", "field": "all", "sort": -1},
+    {"id": 2, "title": "销量", "field": "salecount", "sort": -1},
+    {"id": 3, "title": "价格", "field": "price", "sort": -1},
+    {"id": 4, "title": "筛选"}
+  ];
+
+  int _selectHeaderID = 1;
+  // 配置search搜索框的值
+  var _initKeywordsController = TextEditingController();
+  // cid
+  var _cid;
+  var _keywords;
 
   @override
   void initState() {
     super.initState();
+    this._cid = widget.arguments["cid"];
+    this._keywords = widget.arguments["keywords"];
+    // 给search框复制
+    this._initKeywordsController.text = this._keywords;
+    widget.arguments["kewwords"] == null
+        ? this._initKeywordsController.text = ""
+        : this._initKeywordsController.text = widget.arguments["keywords"];
     _getProductListData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >
+          _scrollController.position.maxScrollExtent - 20) {
+        if (this.flag && this._hasMore) {
+          _getProductListData();
+        }
+      }
+    });
   }
 
   _getProductListData() async {
     setState(() {
       this.flag = false;
     });
+    print(";;;;;;;;;;;${this._keywords}");
     var api =
         "${Config.domain}api/plist?cid=${widget.arguments["cid"]}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}";
+    if (this._keywords == null) {
+      api =
+          "${Config.domain}api/plist?cid=${widget.arguments["cid"]}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}";
+    } else {
+      api =
+          "${Config.domain}api/plist?search=${this._keywords}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}";
+    }
+
     print("000000--- api = $api");
     var result = await Dio().get(api);
     var productList = ProductModel.fromJson(result.data);
@@ -68,6 +115,15 @@ class _ProductListPageState extends State<ProductListPage> {
         this._page++;
         this.flag = true;
         EasyLoading.dismiss();
+      });
+    }
+    if (productList.result.length == 0) {
+      setState(() {
+        this._hasSearchData = false;
+      });
+    } else {
+      setState(() {
+        this._hasSearchData = true;
       });
     }
   }
@@ -170,6 +226,43 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
+  // 导航改变的时候触发
+  _subHeaderChange(id) {
+    if (id == 4) {
+      _scaffoldKey.currentState.openDrawer();
+    }
+    setState(() {
+      this._selectHeaderID = id;
+      this._sort =
+          "${this._subHeaderList[id - 1]["field"]}_${this._subHeaderList[id - 1]["sort"]}";
+      // 重置分页
+      this._page = 1;
+      // 重置数据
+      this._productList = [];
+      this._subHeaderList[id - 1]["sort"] =
+          this._subHeaderList[id - 1]["sort"] * -1;
+      // 回到顶部
+      _scrollController.jumpTo(0);
+      // 重置_hasMore = true;
+      this._hasMore = true;
+      // 重新请求数据
+      this._getProductListData();
+    });
+  }
+
+  // 显示header icon
+  Widget _showIcon(id) {
+    if (id == 2 || id == 3) {
+      if (this._subHeaderList[id - 1]["sort"] == 1) {
+        return Icon(Icons.arrow_drop_down);
+      } else {
+        return Icon(Icons.arrow_drop_up);
+      }
+    } else {
+      return Text("");
+    }
+  }
+
   // 筛选导航
   Widget _subHeaderWidget() {
     return Positioned(
@@ -188,8 +281,8 @@ class _ProductListPageState extends State<ProductListPage> {
           ),
         ),
         child: Row(
-          children: [
-            Expanded(
+          children: this._subHeaderList.map((e) {
+            return Expanded(
               child: InkWell(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -198,68 +291,28 @@ class _ProductListPageState extends State<ProductListPage> {
                     0,
                     ScreenAdaper.height(20),
                   ),
-                  child: clearlove_text(
-                    "综合",
-                    color: Colors.red,
-                  ),
-                ),
-                onTap: () {},
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    ScreenAdaper.height(20),
-                    0,
-                    ScreenAdaper.height(20),
-                  ),
-                  child: clearlove_text(
-                    "销量",
-                    color: Colors.red,
-                  ),
-                ),
-                onTap: () {},
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    ScreenAdaper.height(20),
-                    0,
-                    ScreenAdaper.height(20),
-                  ),
-                  child: clearlove_text(
-                    "价格",
-                    color: Colors.red,
-                  ),
-                ),
-                onTap: () {},
-              ),
-            ),
-            Expanded(
-              child: InkWell(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    ScreenAdaper.height(20),
-                    0,
-                    ScreenAdaper.height(20),
-                  ),
-                  child: clearlove_text(
-                    "筛选",
-                    color: Colors.red,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${e["title"]}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: (this._selectHeaderID == e["id"])
+                              ? Colors.red
+                              : Colors.black,
+                        ),
+                      ),
+                      _showIcon(e["id"]),
+                    ],
                   ),
                 ),
                 onTap: () {
-                  _scaffoldKey.currentState.openEndDrawer();
+                  _subHeaderChange(e["id"]);
                 },
               ),
-            ),
-          ],
+            );
+          }).toList(),
         ),
       ),
     );
@@ -271,23 +324,57 @@ class _ProductListPageState extends State<ProductListPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: clearlove_text(
-          "商品列表",
-          size: 20,
-          color: Colors.white,
+        title: Container(
+          child: TextField(
+            controller: this._initKeywordsController,
+            autofocus: false,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: (value) {
+              setState(() {
+                this._keywords = value;
+              });
+            },
+          ),
+          height: ScreenAdaper.height(68),
+          decoration: BoxDecoration(color: Color.fromRGBO(233, 233, 233, 0.8)),
         ),
+        actions: [
+          InkWell(
+            child: Container(
+              height: ScreenAdaper.height(68),
+              width: ScreenAdaper.width(80),
+              child: Row(
+                children: [
+                  Text("搜索"),
+                ],
+              ),
+            ),
+            onTap: () {
+              this._subHeaderChange(1);
+            },
+          ),
+        ],
       ),
       endDrawer: Drawer(
         child: Container(
           child: clearlove_text("实现筛选功能"),
         ),
       ),
-      body: Stack(
-        children: [
-          _productListWidget(),
-          _subHeaderWidget(),
-        ],
-      ),
+      body: _hasSearchData
+          ? Stack(
+              children: [
+                _productListWidget(),
+                _subHeaderWidget(),
+              ],
+            )
+          : Center(
+              child: Text("没有您要浏览的数据"),
+            ),
     );
   }
 }
