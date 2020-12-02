@@ -6,6 +6,7 @@
  * @LastEditTime: 2020-11-26 16:31:28
  */
 
+import 'package:clearlove_flutter_learn/pages/product_content/product_content.dart';
 import 'package:clearlove_flutter_learn/pages/product_list.dart';
 import 'package:clearlove_flutter_learn/pages/search.dart';
 import 'package:clearlove_flutter_learn/pages/tabs/tabs.dart';
@@ -15,7 +16,10 @@ import 'package:flutter/material.dart';
 final routes = {
   '/': (context) => Tabs(),
   '/search': (context) => SearchPage(),
-  "/productList": (context, {arguments}) => ProductListPage(
+  '/productList': (context, {arguments}) => ProductListPage(
+        arguments: arguments,
+      ),
+  '/productContent': (context, {arguments}) => ProductContentPage(
         arguments: arguments,
       ),
 };

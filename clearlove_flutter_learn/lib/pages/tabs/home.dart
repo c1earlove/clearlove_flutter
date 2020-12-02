@@ -184,52 +184,58 @@ class _HomePageState extends State<HomePage>
         children: _bestProductList.map((element) {
           String sPic = element.pic;
           sPic = Config.domain + sPic.replaceAll("\\", "/");
-          return Container(
-            padding: EdgeInsets.all(ScreenAdaper.width(20)),
-            width: itemWidth,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  child: AspectRatio(
-                    aspectRatio: 1 / 1,
-                    child: Image.network(
-                      sPic,
-                      fit: BoxFit.cover,
+          return InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/productContent',
+                  arguments: {"id": element.sId});
+            },
+            child: Container(
+              padding: EdgeInsets.all(ScreenAdaper.width(20)),
+              width: itemWidth,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 1),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    child: AspectRatio(
+                      aspectRatio: 1 / 1,
+                      child: Image.network(
+                        sPic,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
-                  child: Text(
-                    "${element.title}",
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.black54),
+                  Padding(
+                    padding: EdgeInsets.only(top: ScreenAdaper.height(10)),
+                    child: Text(
+                      "${element.title}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.black54),
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: ScreenAdaper.height(20)),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: clearlove_text("￥${element.price}",
-                            color: Colors.red, size: 16),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: clearlove_text("￥${element.oldPrice}",
-                            color: Colors.black54,
-                            size: 16,
-                            decoration: TextDecoration.lineThrough),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                  Padding(
+                    padding: EdgeInsets.only(top: ScreenAdaper.height(20)),
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: clearlove_text("￥${element.price}",
+                              color: Colors.red, size: 16),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: clearlove_text("￥${element.oldPrice}",
+                              color: Colors.black54,
+                              size: 16,
+                              decoration: TextDecoration.lineThrough),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           );
         }).toList(),
