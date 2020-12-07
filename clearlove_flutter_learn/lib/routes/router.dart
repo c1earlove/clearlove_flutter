@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 // 配置路由的地方
 final routes = {
   '/': (context) => Tabs(),
-  '/search': (context) => SearchPage(),
+  // '/search': (context) => SearchPage(),
   '/productList': (context, {arguments}) => ProductListPage(
         arguments: arguments,
       ),

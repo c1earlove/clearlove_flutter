@@ -10,6 +10,7 @@ import 'package:clearlove_flutter_learn/config/config.dart';
 import 'package:clearlove_flutter_learn/model/product_model.dart';
 import 'package:clearlove_flutter_learn/services/screen_adaper.dart';
 import 'package:clearlove_flutter_learn/utils/clearlove_util.dart';
+import 'package:clearlove_flutter_learn/widget/loading_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -128,17 +129,17 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  // Widget _showMore(index) {
-  //   if (this._hasMore) {
-  //     return (index == this._productList.length - 1)
-  //         ? EasyLoading.show(status: "加载中...")
-  //         : Text("");
-  //   } else {
-  //     return (index == this._productList.length - 1)
-  //         ? Text("---暂无其他数据了---")
-  //         : Text("");
-  //   }
-  // }
+  Widget _showMore(index) {
+    if (this._hasMore) {
+      return (index == this._productList.length - 1)
+          ? LoadingWidget()
+          : Text("");
+    } else {
+      return (index == this._productList.length - 1)
+          ? Text("---暂无其他数据了---")
+          : Text("");
+    }
+  }
 
   // 商品列表
   Widget _productListWidget() {
@@ -215,14 +216,14 @@ class _ProductListPageState extends State<ProductListPage> {
                 Divider(
                   height: 20,
                 ),
-                // this._showMore(index),
+                this._showMore(index),
               ],
             );
           },
         ),
       );
     } else {
-      return clearlove_text("暂无数据", color: Colors.red);
+      return LoadingWidget();
     }
   }
 
